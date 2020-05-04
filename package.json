@@ -1,0 +1,22 @@
+{
+  "name": "solartracker",
+  "version": "1.0.0",
+  "description": "NodeJS application that makes it easy to keep track of your solar panel setup's output",
+  "main": "app.js",
+  "scripts": {
+  },
+  "author": "Drieaugu",
+  "license": "ISC",
+  "dependencies": {
+    "@types/express": "^4.17.6",
+    "body-parser": "^1.19.0",
+    "bootstrap": "^4.4.1",
+    "chart.js": "^2.9.3",
+    "ejs": "^3.1.2",
+    "express": "^4.17.1",
+    "mongoose": "^5.9.11"
+  },
+  "devDependencies": {
+    "prettier": "^2.0.5"
+  }
+}
