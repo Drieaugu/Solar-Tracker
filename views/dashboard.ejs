@@ -67,11 +67,11 @@
 					</div>
 					<input type="submit" value="Add data" class="btn btn-outline-success">
 				</form>
-				<div class="form-group mt-4">
+				<div class="form-group mt-4" id="month-selector">
 					<h5>Query month</h5>
 					<label for="month">Month</label>
-					<input type="month" class="form-control" id="month" name="month">
-					<div class="inline-month-selector text-center mt-2">
+					<input type="month" class="form-control" id="monthSelector" name="monthSelector">
+					<div class="inline-selector text-center mt-2">
 						<span class="selector" onclick="goMonthBack()">
 							<i class="fas fa-caret-left" id="month-back"></i>
 						</span>
@@ -80,16 +80,45 @@
 							<i class="fas fa-caret-right" id="month-forward"></i>
 						</span>
 					</div>
+					<div class="inline-selector text-center mt-2">
+						<span class="selector" onclick="goYearBack()">
+							<i class="fas fa-caret-left" id="monthyear-back"></i>
+						</span>
+						<span class="selector-text"> Select year </span>
+						<span class="selector" onclick="goYearFuture()">
+							<i class="fas fa-caret-right" id="monthyear-forward"></i>
+						</span>
+					</div>
 				</div>
-				<input type="submit" onclick="load_graph()" id="load-btn" class="btn btn-outline-success"
-					value="Load data">
+				<div class="form-group mt-4" id="year-selector">
+					<h5>Query year</h5>
+					<label for="yearSelector">Year</label>
+					<input type="number" class="form-control" id="yearSelector" min="2000" value="2020" max="2999"
+						name="yearSelector">
+					<div class="inline-selector text-center mt-2">
+						<span class="selector" onclick="goYearYearBack()">
+							<i class="fas fa-caret-left" id="year-back"></i>
+						</span>
+						<span class="selector-text"> Select year </span>
+						<span class="selector" onclick="goYearYearFuture()">
+							<i class="fas fa-caret-right" id="year-forward"></i>
+						</span>
+					</div>
+
+				</div>
+				<input type="submit" id="load-btn" class="btn btn-outline-success disabled" value="Load data">
 			</div>
 			<div class="col-lg-9 mt-3">
-				<div class="row mt-5">
+				<div class="row">
+					<div class="col-6">
+						<h3 id="card-title"></h3>
+					</div>
+				</div>
+				<div class="row">
 					<div class="col-6">
 						<div class="card ">
 							<div class="card-body">
-								<h5 class="card-title" id="lowest_title">Highest value</h5>
+								<h5 class="card-title" id="highest_title">Highest value</h5>
 								<p class="card-text" id="highest"></p>
 							</div>
 						</div>
@@ -141,7 +170,26 @@
 				</div>
 			</div>
 		</div>
-		<canvas id="line-chart" width="800" height="450"></canvas>
+		<nav class="mt-4">
+			<div class="nav nav-tabs" id="nav-tab" role="tablist">
+				<a class="nav-item nav-link active text-secondary" id="nav-month" onclick="showMonthTab()"
+					data-toggle="tab" role="tab" aria-controls="nav-home" aria-selected="true">Month</a>
+				<a class="nav-item nav-link text-secondary" id="nav-year" onclick="showYearTab()" data-toggle="tab"
+					role="tab" aria-controls="nav-profile" aria-selected="false">Year</a>
+				<a class="nav-item nav-link text-secondary" id="nav-total" onclick="showTotalTab()" data-toggle="tab"
+					role="tab" aria-controls="nav-contact" aria-selected="false">Total</a>
+			</div>
+		</nav>
+		<div id="month-canvas">
+			<canvas id="month-chart" width="800" height="450"></canvas>
+		</div>
+		<div id="year-canvas">
+			<canvas id="year-chart" width="800" height="450"></canvas>
+		</div>
+		<div id="total-canvas">
+			<p>Total tab</p>
+			<canvas id="total-chart" width="800" height="450"></canvas>
+		</div>
 	</div>
 
 	<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
@@ -157,34 +205,40 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/js/all.min.js"></script>
 	<script>
 		$(document).ready(function () {
+			//Show month tab as default
+			showMonthTab();
 			//Set default of month query input
-			setMonthDefault();
+			setMonthSelectorDefault();
 			//Load graph with this month's data
-			load_graph()
+			load_month_graph()
 		})
 
-		$("#month").on("change", function () {
-			load_graph()
+		$("#month-selector").on("change", function () {
+			load_month_graph()
 		})
 
+		//If an alert is closed, clear the url (prevents showing it again on reload)
 		$('.alert').on('close.bs.alert', function () {
 			console.log('Closed alert');
 			window.location.href = "/";
 		});
 	</script>
 	<script>
-		async function load_graph() {
+		async function load_month_graph() {
 			//Get value from month selector and split year and month
-			let monthSelector = document.getElementById('month').valueAsDate;
-			let monthSelectorMonth = monthSelector.getMonth() + 1;
-			let monthSelectorYear = monthSelector.getFullYear();
+			let monthSelectorValue = new Date($('#monthSelector').val());
+			let monthSelectorMonth = monthSelectorValue.getMonth() + 1;
+			let monthSelectorYear = monthSelectorValue.getFullYear();
 
-			document.getElementById("load-btn").value = "Loading..."
+			$("#load-btn").val("Loading...");
 
 			//Perform AJAX request for data of month and year
 			const request = await fetch('/ajax/getdata/' + monthSelectorMonth + '/' + monthSelectorYear);
 			const data = await request.json();
+
+			//Create Array with length of days in request month, fill it with zeroes
 			let kWhValue = Array(daysInMonth(monthSelectorMonth, monthSelectorYear)).fill(0);
+
 			if (data.success) {
 				//Recieved data contains success flag
 				document.getElementById("load-btn").value = "Load data"
@@ -198,8 +252,8 @@
 				}
 			}
 
-			$("#line-chart").remove()
-			$('.container').append('<canvas id="line-chart"><canvas>');
+			$("#month-chart").remove()
+			$('#month-canvas').append('<canvas id="month-chart"><canvas>');
 			if (data.data.length === 0) {
 
 			}
@@ -212,7 +266,13 @@
 			$("#average").text(Math.round(avg) + " kWh")
 			//Calculate total sum of Array
 			$("#total").text(sum(kWhValue) + " kWh")
-			new Chart(document.getElementById("line-chart"), {
+
+			//Set title above cards
+			$("#card-title").text("Statistics of " + monthSelectorValue.toLocaleString('default', {
+				month: 'long'
+			}) + ' ' + monthSelectorValue.getFullYear());
+
+			new Chart($("#month-chart"), {
 				type: 'line',
 				data: {
 					labels: Array.from(Array(daysInMonth(monthSelectorMonth, monthSelectorYear))).map((e, i) =>
@@ -227,9 +287,9 @@
 				options: {
 					title: {
 						display: true,
-						text: 'kWh of ' + monthSelector.toLocaleString('default', {
+						text: 'kWh of ' + monthSelectorValue.toLocaleString('default', {
 							month: 'long'
-						}) + ' ' + monthSelector.getFullYear()
+						}) + ' ' + monthSelectorValue.getFullYear()
 					},
 					scales: {
 						yAxes: [{
@@ -242,39 +302,120 @@
 					}
 				}
 			});
-			document.getElementById("line-chart").classList.add("d-none", "d-sm-none", "d-md-block", "d-lg-block")
+
+			//Hide the chart on smaller screens (not responsive)
+			$("#month-chart").addClass("d-none d-sm-none d-md-block d-lg-block");
 		}
 	</script>
 	<script>
-		function setMonthDefault() {
+		async function load_year_graph() {
+			//Get value from month selector and split year and month
+			let yearSelectorValue = $('#yearSelector').val();
+			let yearDate = new Date();
+			yearDate.setFullYear(yearSelectorValue);
+
+			$("#load-btn").val("Loading...");
+
+			//Perform AJAX request for data of month and year
+			const request = await fetch('/ajax/getdata/' + yearSelectorValue);
+			const data = await request.json();
+
+			//Create Array with length of 12 months, fill it with zeroes
+			let kWhValue = Array(12).fill(0);
+
+			if (data.success) {
+				//Recieved data contains success flag
+				document.getElementById("load-btn").value = "Load data"
+				for (let i = 0; i < data.data.length; i++) {
+					try {
+						let date = new Date(data.data[i].date)
+						let month = date.getMonth();
+						kWhValue[month] += data.data[i].kWh
+					} catch (err) {
+						//Data unknown, don't do anything
+					}
+				}
+			}
+
+			$("#year-chart").remove()
+			$('#year-canvas').append('<canvas id="year-chart"><canvas>');
+			if (data.data.length === 0) {
+
+			}
+			//Calculate highest value of Array
+			$("#highest").text(Math.max.apply(Math, kWhValue) + " kWh")
+			//Calculate lowest value of Array
+			$("#lowest").text(Math.min.apply(Math, kWhValue) + " kWh")
+			//Calculate and set average of Array
+			let avg = sum(kWhValue) / kWhValue.length;
+			$("#average").text(Math.round(avg) + " kWh")
+			//Calculate total sum of Array
+			$("#total").text(sum(kWhValue) + " kWh")
+
+			//Set title above cards
+			$("#card-title").text("Statistics of " + yearSelectorValue);
+
+			let ceil;
+			//Calculate y-axis
+			if (Math.max.apply(Math, kWhValue) > 0) {
+				ceil = 100* Math.ceil(Math.max.apply(Math, kWhValue)/100);
+			} else {
+				ceil = 100;
+			}
+
+			new Chart($("#year-chart"), {
+				type: 'line',
+				data: {
+					labels: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+					datasets: [{
+						data: kWhValue,
+						label: "kWh",
+						borderColor: "#2ecc71",
+						fill: true
+					}]
+				},
+				options: {
+					title: {
+						display: true,
+						text: 'kWh of ' + yearSelectorValue
+					},
+					scales: {
+						yAxes: [{
+							display: true,
+							ticks: {
+								beginAtZero: true,
+								min: 0,
+								max: ceil
+							}
+						}]
+					}
+				}
+			});
+
+			//Hide the chart on smaller screens (not responsive)
+			$("#year-chart").addClass("d-none d-sm-none d-md-block d-lg-block");
+		}
+	</script>
+	<script>
+		function setMonthSelectorDefault() {
 			//Get the current date -1 => Yesterday
-			document.getElementById('date').valueAsDate = new Date(new Date().setDate(new Date().getDate() - 1));
+			$("#date").val(new Date(new Date().setDate(new Date().getDate() - 1)));
 			//Set maximum value of date input to today
-			document.getElementById("date").max = new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000)
-				.toISOString().split("T")[0];
-			const cur_month = new Date().getMonth();
-			const cur_year = new Date().getFullYear();
-			const cur_combo = new Date()
-			cur_combo.setFullYear(cur_year);
-			cur_combo.setMonth(cur_month);
+			$("#date").attr("max", new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000)
+				.toISOString().split("T")[0]);
+			const currentMonth = new Date().getMonth();
+			const currentYear = new Date().getFullYear();
+			const currentDate = new Date()
+			currentDate.setFullYear(currentYear);
+			currentDate.setMonth(currentMonth);
 			//Set value of month query input to this month
-			document.getElementById('month').valueAsDate = cur_combo;
+			document.getElementById('monthSelector').valueAsDate = currentDate;
 		}
 	</script>
 	<script>
 		function daysInMonth(month, year) {
 			return new Date(year, month, 0).getDate();
 		}
-	</script>
-	<script>
-		document.getElementById("month").addEventListener("keyup", function (event) {
-			//If enter is pressed in month query input
-			if (event.keyCode === 13) {
-				event.preventDefault();
-				//Simulate click of button to load data
-				document.getElementById("load-btn").click();
-			}
-		});
 	</script>
 	<script>
 		function sum(input) {
@@ -295,19 +436,76 @@
 	</script>
 	<script>
 		function goMonthBack() {
-			let monthSelector = document.getElementById('month').valueAsDate
-			let monthSelectorNewMonth = monthSelector.getMonth()
-			let monthSelectorYear = monthSelector.getFullYear();
-			document.getElementById('month').valueAsDate = new Date(monthSelectorYear, monthSelectorNewMonth);
-			load_graph()
+			let monthSelectorValue = new Date($('#monthSelector').val());
+			let monthSelectorNewMonth = monthSelectorValue.getMonth()
+			let monthSelectorYear = monthSelectorValue.getFullYear();
+			document.getElementById('monthSelector').valueAsDate = new Date(monthSelectorYear, monthSelectorNewMonth);
+			load_month_graph()
 		}
 
 		function goMonthFuture() {
-			let monthSelector = document.getElementById('month').valueAsDate
-			let monthSelectorNewMonth = monthSelector.getMonth() + 2;
-			let monthSelectorYear = monthSelector.getFullYear();
-			document.getElementById('month').valueAsDate = new Date(monthSelectorYear, monthSelectorNewMonth);
-			load_graph()
+			let monthSelectorValue = new Date($('#monthSelector').val());
+			let monthSelectorNewMonth = monthSelectorValue.getMonth() + 2;
+			let monthSelectorYear = monthSelectorValue.getFullYear();
+			document.getElementById('monthSelector').valueAsDate = new Date(monthSelectorYear, monthSelectorNewMonth);
+			load_month_graph()
+		}
+
+		function goYearBack() {
+			let monthSelectorValue = new Date($('#monthSelector').val());
+			let monthSelectorNewMonth = monthSelectorValue.getMonth() + 1;
+			let monthSelectorYear = monthSelectorValue.getFullYear() - 1;
+			document.getElementById('monthSelector').valueAsDate = new Date(monthSelectorYear, monthSelectorNewMonth);
+			load_month_graph()
+		}
+
+		function goYearFuture() {
+			let monthSelectorValue = new Date($('#monthSelector').val());
+			let monthSelectorNewMonth = monthSelectorValue.getMonth() + 1;
+			let monthSelectorYear = monthSelectorValue.getFullYear() + 1;
+			document.getElementById('monthSelector').valueAsDate = new Date(monthSelectorYear, monthSelectorNewMonth);
+			load_month_graph()
+		}
+
+		function goYearYearBack() {
+			let yearSelectorValue = $("#yearSelector").val();
+			let yearSelectorYear = parseInt(yearSelectorValue) - 1;
+			document.getElementById('yearSelector').value = yearSelectorYear;
+			load_year_graph()
+		}
+
+		function goYearYearFuture() {
+			let yearSelectorValue = $("#yearSelector").val();
+			let yearSelectorYear = parseInt(yearSelectorValue) + 1;
+			document.getElementById('yearSelector').value = yearSelectorYear;
+			load_year_graph()
+		}
+	</script>
+	<script>
+		function showMonthTab() {
+			$("#month-canvas").show();
+			$("#month-selector").show();
+			$("#year-canvas").hide();
+			$("#year-selector").hide();
+			$("#total-canvas").hide();
+			load_month_graph();
+		}
+
+		function showYearTab() {
+			$("#year-canvas").show();
+			$("#year-selector").show();
+			$("#month-canvas").hide();
+			$("#month-selector").hide();
+			$("#total-canvas").hide();
+			load_year_graph();
+		}
+
+		function showTotalTab() {
+			$("#total-canvas").show();
+			$("#month-canvas").hide();
+			$("#month-selector").hide();
+			$("#year-canvas").hide();
+			$("#year-selector").hide();
 		}
 	</script>
 </body>
