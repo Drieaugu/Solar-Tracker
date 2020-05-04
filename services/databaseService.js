@@ -3,6 +3,12 @@ const solar = require("../models/solar");
 class databaseService {
   constructor() {}
 
+  /**
+   * Queries database for data
+   * @param {object} startDate Earliest date in range
+   * @param {object} endDate Last date in range
+   * @returns {Promise<*>}
+   */
   getSolarData = async (startDate, endDate) => {
     let data;
     if (endDate === "") {
@@ -29,7 +35,13 @@ class databaseService {
     }
     return data;
   };
-
+  /**
+   * Adds data to the database
+   * @param {object} date The date
+   * @param {number} kwh The amount of kWh that was generated
+   * @param callback
+   * @returns {Promise<void>}
+   */
   addSolarData = async (date, kwh, callback) => {
     const newData = new solar({ date: date, kWh: kwh });
     await newData.save((err) => {
@@ -40,7 +52,13 @@ class databaseService {
       }
     });
   };
-
+  /**
+   * Used to alter data that was already added
+   * @param {object} date The date that has to changed
+   * @param {number} kwh The new amount of kWh
+   * @param callback
+   * @returns {Promise<void>}
+   */
   alterSolarData = async (date, kwh, callback) => {
     await solar.findOne({ date: { $eq: date } }, (err, doc) => {
       if (!doc) {
