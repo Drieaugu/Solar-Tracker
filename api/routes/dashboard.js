@@ -21,7 +21,7 @@ module.exports = (app) => {
         (message) => {
           if (message.type === "error") {
             let error = encodeURIComponent(message.message);
-            res.redirect("/wijzigen?error=" + error);
+            res.redirect("/alter?error=" + error);
           } else {
             let success = encodeURIComponent(message.message);
             res.redirect("/?success=" + success);
@@ -29,7 +29,7 @@ module.exports = (app) => {
         }
       );
     } else {
-      res.redirect("/wijzigen");
+      res.redirect("/alter");
     }
   });
 
