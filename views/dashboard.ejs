@@ -38,7 +38,7 @@
 		</div>
 	</nav>
 	<% if (error) {%>
-	<div class="alert alert-warning alert-dismissible fade show" role="alert">
+	<div class="alert alert-warning alert-dismissible fade show scale-in-top" role="alert">
 		<strong><%=error%></strong> Alter data via the <a href="/alter">alter data menu</a>.
 		<button type="button" class="close" data-dismiss="alert" aria-label="Close">
 			<span aria-hidden="true">&times;</span>
@@ -46,7 +46,7 @@
 	</div>
 	<% } %>
 	<% if (success) {%>
-	<div class="alert alert-success alert-dismissible fade show" role="alert">
+	<div class="alert alert-success alert-dismissible fade show scale-in-top" role="alert">
 		<%=success%>
 		<button type="button" class="close" data-dismiss="alert" aria-label="Close">
 			<span aria-hidden="true">&times;</span>
@@ -87,7 +87,7 @@
 			<div class="col-lg-9 mt-3">
 				<div class="row mt-5">
 					<div class="col-6">
-						<div class="card">
+						<div class="card ">
 							<div class="card-body">
 								<h5 class="card-title" id="lowest_title">Highest value</h5>
 								<p class="card-text" id="highest"></p>
@@ -166,6 +166,11 @@
 		$("#month").on("change", function () {
 			load_graph()
 		})
+
+		$('.alert').on('close.bs.alert', function () {
+			console.log('Closed alert');
+			window.location.href = "/";
+		});
 	</script>
 	<script>
 		async function load_graph() {
