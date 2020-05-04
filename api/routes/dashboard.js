@@ -33,6 +33,25 @@ module.exports = (app) => {
     }
   });
 
+  app.get("/ajax/getdata/:year", async (req, res) => {
+    let year = req.params.year;
+
+    let startDate = new Date(year);
+    startDate.setMonth(0);
+    startDate.setDate(1);
+    let endDate = new Date(year);
+    endDate.setMonth(11);
+    endDate.setDate(31);
+
+    let databaseService = new DatabaseService();
+    const solarData = await databaseService.getSolarData(startDate, endDate);
+    let data = {
+      data: solarData,
+      success: true,
+    };
+    res.send(data);
+  });
+
   app.get("/ajax/getdata/:month/:year", async (req, res) => {
     let month = req.params.month;
     let year = req.params.year;
