@@ -204,13 +204,13 @@
 	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/js/all.min.js"></script>
 	<script>
-		$(document).ready(function () {
+		$(document).ready(async function () {
 			//Show month tab as default
 			showMonthTab();
 			//Set default of month query input
-			setMonthSelectorDefault();
+			await setMonthSelectorDefault();
 			//Load graph with this month's data
-			load_month_graph()
+			await load_month_graph()
 		})
 
 		$("#month-selector").on("change", function () {
@@ -219,7 +219,6 @@
 
 		//If an alert is closed, clear the url (prevents showing it again on reload)
 		$('.alert').on('close.bs.alert', function () {
-			console.log('Closed alert');
 			window.location.href = "/";
 		});
 	</script>
@@ -229,7 +228,6 @@
 			let monthSelectorValue = new Date($('#monthSelector').val());
 			let monthSelectorMonth = monthSelectorValue.getMonth() + 1;
 			let monthSelectorYear = monthSelectorValue.getFullYear();
-
 			$("#load-btn").val("Loading...");
 
 			//Perform AJAX request for data of month and year
@@ -262,10 +260,10 @@
 			//Calculate lowest value of Array
 			$("#lowest").text(Math.min.apply(Math, kWhValue) + " kWh")
 			//Calculate and set average of Array
-			let avg = sum(kWhValue) / kWhValue.length;
+			let avg = sum(kWhValue).total / sum(kWhValue).count;
 			$("#average").text(Math.round(avg) + " kWh")
 			//Calculate total sum of Array
-			$("#total").text(sum(kWhValue) + " kWh")
+			$("#total").text(Math.round(sum(kWhValue).total) + " kWh")
 
 			//Set title above cards
 			$("#card-title").text("Statistics of " + monthSelectorValue.toLocaleString('default', {
@@ -347,10 +345,10 @@
 			//Calculate lowest value of Array
 			$("#lowest").text(Math.min.apply(Math, kWhValue) + " kWh")
 			//Calculate and set average of Array
-			let avg = sum(kWhValue) / kWhValue.length;
+			let avg = sum(kWhValue).total / sum(kWhValue).count;
 			$("#average").text(Math.round(avg) + " kWh")
 			//Calculate total sum of Array
-			$("#total").text(sum(kWhValue) + " kWh")
+			$("#total").text(sum(kWhValue).total + " kWh")
 
 			//Set title above cards
 			$("#card-title").text("Statistics of " + yearSelectorValue);
@@ -399,7 +397,7 @@
 	<script>
 		function setMonthSelectorDefault() {
 			//Get the current date -1 => Yesterday
-			$("#date").val(new Date(new Date().setDate(new Date().getDate() - 1)));
+			document.getElementById("date").valueAsDate = new Date(new Date().setDate(new Date().getDate() - 1));
 			//Set maximum value of date input to today
 			$("#date").attr("max", new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000)
 				.toISOString().split("T")[0]);
@@ -424,14 +422,18 @@
 				return false;
 
 			let total = 0;
+			let count = 0;
 			for (let i = 0; i < input.length; i++) {
 				//If value i of Array is not a number => continue
 				if (isNaN(input[i])) {
 					continue;
 				}
-				total += Number(input[i]);
+				if (input[i] !== 0) {
+					count ++;
+					total += Number(input[i]);
+				}
 			}
-			return total;
+			return {total: total, count:count };
 		}
 	</script>
 	<script>
@@ -488,7 +490,6 @@
 			$("#year-canvas").hide();
 			$("#year-selector").hide();
 			$("#total-canvas").hide();
-			load_month_graph();
 		}
 
 		function showYearTab() {
@@ -497,7 +498,7 @@
 			$("#month-canvas").hide();
 			$("#month-selector").hide();
 			$("#total-canvas").hide();
-			load_year_graph();
+			load_year_graph()
 		}
 
 		function showTotalTab() {

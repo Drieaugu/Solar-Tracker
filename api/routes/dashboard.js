@@ -83,7 +83,7 @@ module.exports = (app) => {
       let databaseService = new DatabaseService();
       await databaseService.addSolarData(
         req.body.date,
-        req.body.kilowattuur,
+        req.body.kilowatthour,
         (err) => {
           if (err) {
             let error = encodeURIComponent("Date has already been set!");
