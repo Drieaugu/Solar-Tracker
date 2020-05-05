@@ -56,7 +56,7 @@
 	<div class="container mt-4">
 		<div class="row">
 			<div class="col-lg-3">
-				<div class="card">
+				<div class="card mt-4">
 					<div class="card-body">
 						<form action="/post" method="post" autocomplete="off" autocapitalize="off">
 							<h5>Add data</h5>
@@ -69,6 +69,22 @@
 									required>
 							</div>
 							<input type="submit" value="Add data" class="btn btn-outline-success">
+						</form>
+					</div>
+				</div>
+				<div class="card mt-4">
+					<div class="card-body">
+						<form action="/import" method="post" autocomplete="off" autocapitalize="off" enctype="multipart/form-data">
+							<h5>Import data</h5>
+							<div class="form-group">
+								<label for="file">CSV-file</label>
+								<div class="custom-file">
+									<input type="file" class="custom-file-input" id="file" name="file" accept="text/csv" required>
+									<label class="custom-file-label" for="file">Choose file...</label>
+									<div class="invalid-feedback">That file is invalid!</div>
+								</div>
+								<input type="submit" value="Import data" class="btn btn-outline-success mt-4">
+							</div>
 						</form>
 					</div>
 				</div>

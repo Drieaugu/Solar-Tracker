@@ -1,4 +1,6 @@
 const DatabaseService = require("../../services/databaseService");
+const csv = require("csv-parser");
+const fs = require("fs");
 
 module.exports = (app) => {
   app.get("/", async (req, res) => {
@@ -96,5 +98,40 @@ module.exports = (app) => {
     } else {
       res.redirect("/");
     }
+  });
+
+  app.post("/import", async (req, res) => {
+    let file = req.file;
+    let errorFound = false;
+
+    fs.createReadStream(file.path)
+      .pipe(csv({ separator: ";" }))
+      .on("data", async (data) => {
+        const parsedData = Object.values(data);
+        let dateParts = parsedData[0].split("/");
+        let date = new Date();
+        date.setHours(0, 0, 0, 0);
+        date.setDate(parseInt(dateParts[0]));
+        date.setMonth(parseInt(dateParts[1] - 1));
+        date.setFullYear(parseInt(dateParts[2]));
+        let databaseService = new DatabaseService();
+        await databaseService.addSolarData(
+          date,
+          parseFloat(parsedData[1].replace(",", ".")),
+          async (err) => {
+            if (err) {
+              if (!res.headersSent) {
+                let error = encodeURIComponent("Something went wrong!");
+                await res.redirect("/?error=" + error);
+              }
+            } else {
+              if (!res.headersSent) {
+                let success = encodeURIComponent("Data successfully imported!");
+                res.redirect("/?success=" + success);
+              }
+            }
+          }
+        );
+      });
   });
 };
