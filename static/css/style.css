@@ -7,6 +7,10 @@
   width: 100%;
 }
 
+.nav-tabs {
+  cursor: pointer;
+}
+
 @media screen and (max-width: 993px) {
   .card {
     min-height: 120px;
