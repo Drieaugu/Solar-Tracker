@@ -32,35 +32,30 @@
                     <a class="nav-link" href="/">Home </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link active" href="/alter">Alter data <span class="sr-only">(current)</span></a>
+                    <a class="nav-link" href="/alter">Alter data</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/import">Import data</a>
+                    <a class="nav-link active" href="/import">Import data <span class="sr-only">(current)</span></a>
                 </li>
             </ul>
         </div>
     </nav>
-    <% if (error) {%>
-    <div class="alert alert-warning alert-dismissible fade show" role="alert">
-        <%=error%>
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-        </button>
-    </div>
-    <% } %>
     <div class="container w-50">
         <div class="card mt-4">
             <div class="card-body">
-                <form action="/alter/post" method="post" autocomplete="off" autocapitalize="off">
-                    <h5>Alter data</h5>
+                <form action="/post/import" method="post" autocomplete="off" autocapitalize="off"
+                    enctype="multipart/form-data">
+                    <h5>Import data</h5>
                     <div class="form-group">
-                        <label for="kilowattuur">Kilowatt-hour (kWh)</label>
-                        <input type="number" step="0.1" min="0.0" max="50.0" name="kilowattuur" id="kilowattuur"
-                            class="form-control" placeholder="Kilowatt-hour" required>
-                        <label for="date">Date</label>
-                        <input type="date" name="date" id="date" class="form-control" placeholder="Date" required>
+                        <label for="file">CSV-file</label>
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="file" name="file" accept="text/csv"
+                                required>
+                            <label class="custom-file-label" for="file">Choose file...</label>
+                            <div class="invalid-feedback">That file is invalid!</div>
+                        </div>
+                        <input type="submit" value="Import data" class="btn btn-outline-success mt-4">
                     </div>
-                    <input type="submit" value="Alter" class="btn btn-outline-success">
                 </form>
             </div>
         </div>
@@ -75,12 +70,6 @@
         integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous">
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/js/all.min.js"></script>
-    <script>
-        $('.alert').on('close.bs.alert', function () {
-            console.log('Closed alert');
-            window.location.href = "/alter";
-        });
-    </script>
 </body>
 
 </html>
