@@ -111,9 +111,17 @@ module.exports = (app) => {
         let dateParts = parsedData[0].split("/");
         let date = new Date();
         date.setHours(0, 0, 0, 0);
-        date.setDate(parseInt(dateParts[0]));
-        date.setMonth(parseInt(dateParts[1] - 1));
-        date.setFullYear(parseInt(dateParts[2]));
+        try {
+          date.setDate(parseInt(dateParts[0]));
+          date.setMonth(parseInt(dateParts[1] - 1));
+          date.setFullYear(parseInt(dateParts[2]));
+        } catch (err) {
+          if (!res.headersSent) {
+            let error = encodeURIComponent("Something went wrong!");
+            await res.redirect("/?error=" + error);
+          }
+        }
+
         let databaseService = new DatabaseService();
         await databaseService.addSolarData(
           date,

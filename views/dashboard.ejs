@@ -296,7 +296,11 @@
 			$("#lowest").text(Math.min.apply(Math, kWhValue) + " kWh")
 			//Calculate and set average of Array
 			let avg = sum(kWhValue).total / sum(kWhValue).count;
-			$("#average").text(Math.round(avg * 10) / 10 + " kWh")
+			if (isNaN(avg)) {
+				$("#average").text("0 kWh")
+			} else {
+				$("#average").text(Math.round(avg * 10) / 10 + " kWh")
+			}
 			//Calculate total sum of Array
 			$("#total").text((Math.round(sum(kWhValue).total * 10) / 10) + " kWh")
 
@@ -381,7 +385,11 @@
 			$("#lowest").text(Math.min.apply(Math, kWhValue) + " kWh")
 			//Calculate and set average of Array
 			let avg = sum(kWhValue).total / sum(kWhValue).count;
-			$("#average").text(Math.round(avg * 10) / 10 + " kWh")
+			if (isNaN(avg)) {
+				$("#average").text("0 kWh")
+			} else {
+				$("#average").text(Math.round(avg * 10) / 10 + " kWh")
+			}
 			//Calculate total sum of Array
 			$("#total").text(sum(kWhValue).total + " kWh")
 
