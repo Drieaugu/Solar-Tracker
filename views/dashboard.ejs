@@ -34,12 +34,15 @@
 				<li class="nav-item">
 					<a class="nav-link" href="/alter">Alter data</a>
 				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="/import">Import data</a>
+				</li>
 			</ul>
 		</div>
 	</nav>
 	<% if (error) {%>
 	<div class="alert alert-warning alert-dismissible fade show scale-in-top" role="alert">
-		<strong><%=error%></strong> Alter data via the <a href="/alter">alter data menu</a>.
+		<strong><%=error%></strong> You can alter data via the <a href="/alter">alter data menu</a>.
 		<button type="button" class="close" data-dismiss="alert" aria-label="Close">
 			<span aria-hidden="true">&times;</span>
 		</button>
@@ -72,22 +75,7 @@
 						</form>
 					</div>
 				</div>
-				<div class="card mt-4">
-					<div class="card-body">
-						<form action="/import" method="post" autocomplete="off" autocapitalize="off" enctype="multipart/form-data">
-							<h5>Import data</h5>
-							<div class="form-group">
-								<label for="file">CSV-file</label>
-								<div class="custom-file">
-									<input type="file" class="custom-file-input" id="file" name="file" accept="text/csv" required>
-									<label class="custom-file-label" for="file">Choose file...</label>
-									<div class="invalid-feedback">That file is invalid!</div>
-								</div>
-								<input type="submit" value="Import data" class="btn btn-outline-success mt-4">
-							</div>
-						</form>
-					</div>
-				</div>
+
 			</div>
 			<div class="col-lg-9 mt-3">
 				<div class="row">
@@ -293,7 +281,7 @@
 			//Calculate highest value of Array
 			$("#highest").text(Math.max.apply(Math, kWhValue) + " kWh")
 			//Calculate lowest value of Array
-			$("#lowest").text(Math.min.apply(Math, kWhValue) + " kWh")
+			$("#lowest").text(Math.min.apply(Math, kWhValue.filter(Number)) + " kWh")
 			//Calculate and set average of Array
 			let avg = sum(kWhValue).total / sum(kWhValue).count;
 			if (isNaN(avg)) {
@@ -372,6 +360,10 @@
 						//Data unknown, don't do anything
 					}
 				}
+				// Round values to 1 decimal
+				for (let i = 0; i < kWhValue.length; i++) {
+					kWhValue[i] = Math.round(kWhValue[i] * 10) / 10
+				}
 			}
 
 			$("#year-chart").remove()
@@ -382,7 +374,7 @@
 			//Calculate highest value of Array
 			$("#highest").text(Math.max.apply(Math, kWhValue) + " kWh")
 			//Calculate lowest value of Array
-			$("#lowest").text(Math.min.apply(Math, kWhValue) + " kWh")
+			$("#lowest").text(Math.min.apply(Math, kWhValue.filter(Number)) + " kWh")
 			//Calculate and set average of Array
 			let avg = sum(kWhValue).total / sum(kWhValue).count;
 			if (isNaN(avg)) {
@@ -391,7 +383,7 @@
 				$("#average").text(Math.round(avg * 10) / 10 + " kWh")
 			}
 			//Calculate total sum of Array
-			$("#total").text(sum(kWhValue).total + " kWh")
+			$("#total").text(Math.round(sum(kWhValue).total * 10) / 10 + " kWh")
 
 			//Set title above cards
 			$("#card-title").text("Statistics of " + yearSelectorValue);
@@ -519,15 +511,13 @@
 
 		function goYearYearBack() {
 			let yearSelectorValue = $("#yearSelector").val();
-			let yearSelectorYear = parseInt(yearSelectorValue) - 1;
-			document.getElementById('yearSelector').value = yearSelectorYear;
+			document.getElementById('yearSelector').value = parseInt(yearSelectorValue) - 1;
 			load_year_graph()
 		}
 
 		function goYearYearFuture() {
 			let yearSelectorValue = $("#yearSelector").val();
-			let yearSelectorYear = parseInt(yearSelectorValue) + 1;
-			document.getElementById('yearSelector').value = yearSelectorYear;
+			document.getElementById('yearSelector').value = parseInt(yearSelectorValue) + 1;
 			load_year_graph()
 		}
 	</script>

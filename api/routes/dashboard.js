@@ -100,7 +100,11 @@ module.exports = (app) => {
     }
   });
 
-  app.post("/import", async (req, res) => {
+  app.get("/import", (req, res) => {
+    res.render("import.ejs");
+  });
+
+  app.post("/post/import", async (req, res) => {
     let file = req.file;
     let errorFound = false;
 
@@ -111,16 +115,10 @@ module.exports = (app) => {
         let dateParts = parsedData[0].split("/");
         let date = new Date();
         date.setHours(0, 0, 0, 0);
-        try {
-          date.setDate(parseInt(dateParts[0]));
-          date.setMonth(parseInt(dateParts[1] - 1));
-          date.setFullYear(parseInt(dateParts[2]));
-        } catch (err) {
-          if (!res.headersSent) {
-            let error = encodeURIComponent("Something went wrong!");
-            await res.redirect("/?error=" + error);
-          }
-        }
+
+        date.setDate(parseInt(dateParts[0]));
+        date.setMonth(parseInt(dateParts[1] - 1));
+        date.setFullYear(parseInt(dateParts[2]));
 
         let databaseService = new DatabaseService();
         await databaseService.addSolarData(
