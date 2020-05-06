@@ -297,6 +297,19 @@
 				month: 'long'
 			}) + ' ' + monthSelectorValue.getFullYear());
 
+			let ceil;
+			//Calculate y-axis
+			if (Math.max.apply(Math, kWhValue) > 0) {
+				ceil = 10 * Math.ceil(Math.max.apply(Math, kWhValue) / 10);
+				//If difference between ceiling and max value is 1 or less, add 10 to ceiling for extra spacing
+				if (ceil - Math.max.apply(Math, kWhValue) <= 1) {
+					ceil += 10
+				}
+			} else {
+				//If month is empty, set ceiling to 10
+				ceil = 10;
+			}
+
 			new Chart($("#month-chart"), {
 				type: 'line',
 				data: {
@@ -321,7 +334,7 @@
 							display: true,
 							ticks: {
 								beginAtZero: true,
-								max: Math.round(Math.max.apply(Math, kWhValue) + 5)
+								max: ceil
 							}
 						}]
 					}
