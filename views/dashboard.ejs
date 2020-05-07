@@ -21,7 +21,7 @@
 
 <body>
 	<nav class="navbar navbar-expand-lg navbar-light bg-light">
-		<a class="navbar-brand" href="/">Solar Tracker</a>
+		<a class="navbar-brand" href="/"><img src="img/icon/android-chrome-192x192.png" alt="Logo solar tracker" width="30" height="30"></a>
 		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
 			aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
 			<span class="navbar-toggler-icon"></span>
@@ -88,7 +88,10 @@
 						<div class="card ">
 							<div class="card-body">
 								<h5 class="card-title" id="highest_title">Highest value</h5>
-								<p class="card-text" id="highest"></p>
+								<p class="card-text">
+									<p id="highest_date"></p>
+									<p id="highest"></p>
+								</p>
 							</div>
 						</div>
 					</div>
@@ -96,7 +99,10 @@
 						<div class="card">
 							<div class="card-body">
 								<h5 class="card-title" id="lowest_title">Lowest value</h5>
-								<p class="card-text" id="lowest"></p>
+								<p class="card-text">
+									<p id="lowest_date"></p>
+									<p id="lowest"></p>
+								</p>
 							</div>
 						</div>
 					</div>
@@ -281,7 +287,11 @@
 			//Calculate highest value of Array
 			$("#highest").text(Math.max.apply(Math, kWhValue) + " kWh")
 			//Calculate lowest value of Array
-			$("#lowest").text(Math.min.apply(Math, kWhValue.filter(Number)) + " kWh")
+			if (isFinite(Math.min.apply(Math, kWhValue.filter(Number)))) {
+				$("#lowest").text(Math.min.apply(Math, kWhValue.filter(Number)) + " kWh")
+			} else {
+				$("#lowest").text("0 kWh")
+			}
 			//Calculate and set average of Array
 			let avg = sum(kWhValue).total / sum(kWhValue).count;
 			if (isNaN(avg)) {
@@ -387,7 +397,12 @@
 			//Calculate highest value of Array
 			$("#highest").text(Math.max.apply(Math, kWhValue) + " kWh")
 			//Calculate lowest value of Array
-			$("#lowest").text(Math.min.apply(Math, kWhValue.filter(Number)) + " kWh")
+			if (isFinite(Math.min.apply(Math, kWhValue.filter(Number)))) {
+				$("#lowest").text(Math.min.apply(Math, kWhValue.filter(Number)) + " kWh")
+			} else {
+				$("#lowest").text("0 kWh")
+			}
+
 			//Calculate and set average of Array
 			let avg = sum(kWhValue).total / sum(kWhValue).count;
 			if (isNaN(avg)) {
